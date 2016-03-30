@@ -22,9 +22,12 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
-
 import java.util.Locale;
 
+/**
+ * Created by ketan.sharma on 29/03/2016.
+ * This actvity implements the SensorEventListener to return the accelerometer value
+ */
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private SensorManager sensorManager;
     private TextView acc;
@@ -33,9 +36,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         acc = (TextView) findViewById(R.id.acceleration_value);
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     == PackageManager.PERMISSION_GRANTED)) {
                 Location location = locationManager.getLastKnownLocation(bestProvider);
 
-                locationManager.requestLocationUpdates(bestProvider, 0, 1, mLocationListener);
+                locationManager.requestLocationUpdates(bestProvider, 0, 1, locationListener);
             }
         }
 
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         && (ContextCompat.checkSelfPermission(getApplicationContext(),
                         Manifest.permission.ACCESS_FINE_LOCATION)
                         != PackageManager.PERMISSION_GRANTED)) {
-                    locationManager.removeUpdates(mLocationListener);
+                    locationManager.removeUpdates(locationListener);
                 }
             }
             super.onPause();
@@ -125,7 +125,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    final LocationListener mLocationListener = new LocationListener() {
+    /** This listener returns GPS data, although the speed value is inaccurate
+    when testing in a car.  Need to implement an algorithm to calculate the speed,
+    based on locations and distances covered. */
+    final LocationListener locationListener = new LocationListener() {
         // LocationListener Override Method
         @Override
         public void onLocationChanged(Location location) {
