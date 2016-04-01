@@ -1,7 +1,7 @@
 <snippet>
   <content>
 # GPS / Accelerometer Values
-This is project was built in Android Studio using Java.  This is a basic app that shows your current GPS co-ordinates, along with output from the accelorometer.
+This project was built in Android Studio using Java.  This is a basic app that shows your current GPS co-ordinates, along with output from the accelorometer.
 ## Installation
 Install the application by opening the project in Android Studio and running it on your connected device.
 ## Contributing
