@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        acc = (TextView) findViewById(R.id.acceleration_value);
+        acc = (TextView) findViewById(R.id.accelerometer_value);
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -76,14 +76,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void getAccelerometer(SensorEvent event) {
         float[] values = event.values;
         // Movement
-        float x = values[0];
-        float y = values[1];
-        float z = values[2];
+        float[] gravity = new float[3];
+        final float alpha = (float) 0.8;
 
-        float accelationSquareRoot = (x * x + y * y + z * z)
-                / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
-        double acceleration = Math.sqrt(accelationSquareRoot);
-        acc.setText(String.valueOf(acceleration));
+        gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+        gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+        gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+
+        float x = event.values[0] - gravity[0];
+        float y = event.values[1] - gravity[1];
+        float z = event.values[2] - gravity[2];
+
+        acc.setText("x="+x+" y="+y+" z="+z);
     }
 
     @Override
@@ -97,14 +101,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     == PackageManager.PERMISSION_GRANTED)) {
                 Location location = locationManager.getLastKnownLocation(bestProvider);
 
-                locationManager.requestLocationUpdates(bestProvider, 0, 1, locationListener);
+                locationManager.requestLocationUpdates(bestProvider, 0, 0, locationListener);
             }
         }
 
         super.onResume();
         sensorManager.registerListener(this,
                 sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                60000);
+                6000000);
     }
 
     @Override
@@ -139,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             longitude_value.setText(String.valueOf(location.getLongitude()));
 
             TextView speed_value = (TextView) findViewById(R.id.speed_value);
-            speed_value.setText(String.valueOf(location.getSpeed()));
+            speed_value.setText(toMPH(location.getSpeed()));
         }
 
         @Override
@@ -165,4 +169,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
     };
+
+    String toMPH(float speed) {
+        String speed_string = "";
+        //to KPH
+        speed *= 3.6;
+        speed *= 0.621371;
+
+        speed_string = String.valueOf(speed) + " mph";
+
+        return speed_string;
+    }
 }
